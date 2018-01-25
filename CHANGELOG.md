@@ -1,6 +1,14 @@
 Change History
 ==============
 
+v1.1.9
+---
+* [Feature] 支持 SPA 下多个路由路径拥有各自的 Skeleton
+
+v1.1.8
+---
+* [Fix] 针对`entry`名称中包含连字符的情况，增加`[nameHash]`占位符
+
 v1.1.7
 ---
 * [Fix] 由于不是所有编辑器都在文件末尾自动添加空行。Loader 为路由文件添加 import 语句时插入换行符。[ISSUE#5](https://github.com/lavas-project/vue-skeleton-webpack-plugin/issues/5)

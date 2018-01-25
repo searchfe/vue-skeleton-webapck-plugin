@@ -6,7 +6,7 @@
 /* eslint-disable no-console, fecs-no-require */
 
 const ssr = require('./ssr');
-const {insertAt, isObject} = require('./util');
+const {insertAt, isObject, generateRouterScript} = require('./util');
 
 const DEFAULT_PLUGIN_OPTIONS = {
     webpackConfig: {},
@@ -24,7 +24,7 @@ class SkeletonPlugin {
 
     apply(compiler) {
 
-        let {webpackConfig, insertAfter, quiet} = this.options;
+        let {webpackConfig, insertAfter, quiet, router, minimize} = this.options;
         let entry = webpackConfig.entry;
         // cache entries
         let skeletonEntries;
@@ -73,7 +73,13 @@ class SkeletonPlugin {
 
                         // replace mounted point with ssr result in html
                         let appPos = htmlPluginData.html.lastIndexOf(insertAfter) + insertAfter.length;
-                        htmlPluginData.html = insertAt(htmlPluginData.html, skeletonHtml, appPos);
+
+                        // inject router code in SPA mode
+                        let routerScript = '';
+                        if (router) {
+                            routerScript = generateRouterScript(router, minimize);
+                        }
+                        htmlPluginData.html = insertAt(htmlPluginData.html, skeletonHtml + routerScript, appPos);
                         callback(null, htmlPluginData);
                     });
                 });

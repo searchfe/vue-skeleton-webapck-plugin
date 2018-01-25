@@ -67,6 +67,12 @@ module: {
 - webpackConfig *必填*，渲染 skeleton 的 webpack 配置对象
 - insertAfter *选填*，渲染 DOM 结果插入位置，默认值为`'<div id="app">'`
 - quiet *选填*，在服务端渲染时是否需要输出信息到控制台
+- router *选填* SPA 下配置各个路由路径对应的 Skeleton
+    - mode *选填* 路由模式，两个有效值 `history|hash`
+    - routes *选填* 路由数组，其中每个路由对象包含两个属性：
+        - path 路由路径
+        - skeletonId Skeleton DOM 的 id
+- minimize *选填* SPA 下是否需要压缩注入 HTML 的 JS 代码
 
 ### SkeletonWebpackPlugin.loader
 
@@ -81,6 +87,7 @@ module: {
 在`importTemplate`和`routePathTemplate`中可以使用以下占位符：
 - `[name]` 和`entry`保持一致
 - `[nameCap]` `entry`首字母大写
+- `[nameHash]` 使用`entry`名称生成 hash，避免名称中包含例如连字符的情况
 
 例如使用以下配置，将向路由文件中插入`'import Page1 from \'@/pages/Page1.vue\';'`和`'import Page2 from \'@/pages/Page2.vue\';'`两条语句。同时生成`/skeleton-page1`和`/skeleton-page2`两条路由规则。
 ```js
