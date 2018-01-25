@@ -34,8 +34,8 @@ test('it should run successfully', async t => {
     t.falsy(stats.hasWarnings() && errors.hasWarnings());
 });
 
-test('it should insert relative skeleton into every page', async t => {
+test('it should insert multi skeletons into index.html', async t => {
     let result = await readFile(path.join(webpackBuildPath, 'index.html'));
-    console.log(result.toString())
-    t.true(result.toString().includes('var pathname = window.location.pathname;'));
+    let skeleton1DOM = '<div id=skeleton1 class=skeleton1-wrapper';
+    t.true(result.toString().includes(skeleton1DOM));
 });
