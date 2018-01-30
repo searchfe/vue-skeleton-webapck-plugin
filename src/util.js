@@ -32,7 +32,7 @@ module.exports = {
         return reg;
     },
 
-    generateRouterScript: ({mode = 'history', routes = []},  minimize = false) => {
+    generateRouterScript: ({mode = 'history', routes = []},  minimize = false, isMPA, entryName) => {
         // format routes if it's an object
         if (module.exports.isObject(routes)) {
             routes = Object.keys(routes).map(key => {
@@ -45,6 +45,11 @@ module.exports = {
 
         let skeletonsClause = [];
         let switchClause = [];
+
+        if (isMPA) {
+            routes = routes.filter(route => route.entryName === entryName);
+        }
+
         routes.forEach(({skeletonId, path}, i) => {
             // convert route string to regexp
             path = path === '*'

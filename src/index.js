@@ -77,7 +77,8 @@ class SkeletonPlugin {
                         // inject router code in SPA mode
                         let routerScript = '';
                         if (router) {
-                            routerScript = generateRouterScript(router, minimize);
+                            let isMPA = !!Object.keys(skeletonEntries).length;
+                            routerScript = generateRouterScript(router, minimize, isMPA, entryKey);
                         }
                         htmlPluginData.html = insertAt(htmlPluginData.html, skeletonHtml + routerScript, appPos);
                         callback(null, htmlPluginData);
