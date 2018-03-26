@@ -1,6 +1,6 @@
 {
   "name": "vue-skeleton-webpack-plugin",
-  "version": "1.1.10",
+  "version": "1.1.11",
   "description": "A webpack plugin for generating skeleton of pages",
   "main": "lib/index.js",
   "files": [
@@ -21,6 +21,7 @@
     "vue-server-renderer": "^2.3.4"
   },
   "devDependencies": {
+    "autoprefixer": "^8.2.0",
     "ava": "^0.18.2",
     "babel-cli": "^6.24.0",
     "babel-loader": "^7.1.1",

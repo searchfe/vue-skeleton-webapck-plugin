@@ -43,3 +43,11 @@ test('it should insert the ssr result of skeleton into mounted point', async t =
     // inlined css
     t.true(htmlContent.includes('<style>.skeleton-header'));
 });
+
+test('it should use autoprefixer with postcss correctly.', async t => {
+    let htmlContent = await readFile(path.join(webpackBuildPath, 'index.html'));
+    htmlContent = htmlContent.toString();
+
+    // autoprefixer
+    t.true(htmlContent.includes('display: -webkit-box;'));
+});
