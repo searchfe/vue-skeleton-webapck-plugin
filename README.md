@@ -100,6 +100,36 @@ module: {
 
 ## 示例
 
-具体应用示例可参考[Lavas Appshell模版](https://github.com/lavas-project/lavas-template-vue-appshell)和[Lavas MPA模版](https://github.com/lavas-project/lavas-template-vue-mpa)。
+### Lavas 创建的项目
 
-或者参考[examples](https://github.com/lavas-project/vue-skeleton-webpack-plugin/tree/master/examples)下的测试用例，其中也包含了单页和多页情况。
+如果你的项目是使用 Lavas 创建的，可参考[Lavas Appshell模版](https://github.com/lavas-project/lavas-template-vue-appshell)和[Lavas MPA模版](https://github.com/lavas-project/lavas-template-vue-mpa) 中的应用。
+
+### vue-cli 创建的项目
+
+如果你的项目是使用 vue-cli 创建的，可以参考基于 Vue Webpack 模板应用这个插件的例子：
+SPA 中单个 Skeleton：
+* [Github](https://github.com/xiaoiver/skeleton-demo)
+* [Online Demo](https://xiaoiver.github.io/skeleton-demo/#/)
+
+SPA 中多个 Skeleton:
+* [Github](https://github.com/xiaoiver/multi-skeleton-demo)
+* [Online Demo](https://xiaoiver.github.io/multi-skeleton-demo/#/)
+
+### 简单的 Vue + Webpack 应用
+
+或者你可以参考[examples](https://github.com/lavas-project/vue-skeleton-webpack-plugin/tree/master/examples)下的测试用例，其中也包含了单页和多页情况。
+
+## 常见问题
+
+### 未开启样式分离
+
+运行出现如下错误：
+> node_modules\memory-fs\lib\MemoryFileSystem.js:114
+> throw new MemoryFileSystemError(errors.code.ENOENT, _path);
+
+由于插件使用了 Vue 服务端渲染在构建时渲染 skeleton 组件，将 DOM 和样式内联到最终输出的 html 中。
+因此在给 skeleton 使用的 Webpack 配置对象中需要开启**样式分离**，将 skeleton 使用的样式从 JS 中分离出来。
+
+在 Webpack 中样式分离是通过 [extract-text-webpack-plugin](https://doc.webpack-china.org/plugins/extract-text-webpack-plugin) 插件实现的。因此在 `webpack.skeleton.config` 中必须正确配置该插件。
+
+以使用 vue-cli 创建的项目为例，如果你的 `webpack.skeleton.conf` 继承自 `webpack.base.conf`，在开发模式下是默认关闭样式分离的，因此需要修改，可参考[修改方案](https://github.com/lavas-project/vue-skeleton-webpack-plugin/issues/11#issuecomment-377845362)。
