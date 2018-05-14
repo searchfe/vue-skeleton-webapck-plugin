@@ -42,7 +42,11 @@ let webpackConfig = merge(baseWebpackConfig, {
         }),
 
         new SkeletonWebpackPlugin({
-            webpackConfig: require('./webpack.skeleton.conf'),
+            webpackConfig: {
+                entry: {
+                    app: resolve('./src/entry-skeleton.js')
+                }
+            },
             quiet: true,
             minimize: true,
             router: {

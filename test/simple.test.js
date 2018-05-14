@@ -42,6 +42,10 @@ test('it should insert the ssr result of skeleton into mounted point', async t =
 
     // inlined css
     t.true(htmlContent.includes('<style>.skeleton-header'));
+
+    // emit images imported from Skeleton.vue
+    t.true(htmlContent.includes('url(static/img/logo.90f7061.jpg)'));
+    t.true(fs.existsSync(path.join(webpackBuildPath, 'static/img/logo.90f7061.jpg')));
 });
 
 test('it should use autoprefixer with postcss correctly.', async t => {

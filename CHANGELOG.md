@@ -1,6 +1,14 @@
 Change History
 ==============
 
+v1.1.14
+---
+* [Feature] 简化 `webpackConfig` 配置项，不需要提供完整的 webpack 配置对象，只需要包含 `entry` 指向 `entry-skeleton.js` 即可。
+
+v1.1.12
+---
+* [Fix] [ISSUE#15](https://github.com/lavas-project/vue-skeleton-webpack-plugin/issues/15)
+
 v1.1.9
 ---
 * [Feature] 支持 SPA 下多个路由路径拥有各自的 Skeleton

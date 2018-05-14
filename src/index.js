@@ -62,27 +62,31 @@ class SkeletonPlugin {
 
                 // set current entry & output in webpack config
                 webpackConfig.entry = skeletonEntries[entryKey];
+                if (!webpackConfig.output) {
+                    webpackConfig.output = {};
+                }
                 webpackConfig.output.filename = `skeleton-${entryKey}.js`;
 
-                ssr(webpackConfig, {quiet}).then(({skeletonHtml, skeletonCss, watching}) => {
-                    // close webpack watch first
-                    watching.close(() => {
-                        // insert inlined styles into html
-                        let headTagEndPos = htmlPluginData.html.lastIndexOf('</head>');
-                        htmlPluginData.html = insertAt(htmlPluginData.html, `<style>${skeletonCss}</style>`, headTagEndPos);
+                ssr(webpackConfig, {
+                    quiet, compilation, context: compiler.context
+                }).then(({skeletonHtml, skeletonCss, watching}) => {
+                    // insert inlined styles into html
+                    let headTagEndPos = htmlPluginData.html.lastIndexOf('</head>');
+                    htmlPluginData.html = insertAt(htmlPluginData.html, `<style>${skeletonCss}</style>`, headTagEndPos);
 
-                        // replace mounted point with ssr result in html
-                        let appPos = htmlPluginData.html.lastIndexOf(insertAfter) + insertAfter.length;
+                    // replace mounted point with ssr result in html
+                    let appPos = htmlPluginData.html.lastIndexOf(insertAfter) + insertAfter.length;
 
-                        // inject router code in SPA mode
-                        let routerScript = '';
-                        if (router) {
-                            let isMPA = !!(Object.keys(skeletonEntries).length > 1);
-                            routerScript = generateRouterScript(router, minimize, isMPA, entryKey);
-                        }
-                        htmlPluginData.html = insertAt(htmlPluginData.html, skeletonHtml + routerScript, appPos);
-                        callback(null, htmlPluginData);
-                    });
+                    // inject router code in SPA mode
+                    let routerScript = '';
+                    if (router) {
+                        let isMPA = !!(Object.keys(skeletonEntries).length > 1);
+                        routerScript = generateRouterScript(router, minimize, isMPA, entryKey);
+                    }
+                    htmlPluginData.html = insertAt(htmlPluginData.html, skeletonHtml + routerScript, appPos);
+                    callback(null, htmlPluginData);
+                }).catch((e) => {
+                    console.log(e);
                 });
             });
         });

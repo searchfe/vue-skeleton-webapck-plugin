@@ -46,7 +46,12 @@ let webpackConfig = merge(baseWebpackConfig, {
         }),
 
         new SkeletonWebpackPlugin({
-            webpackConfig: require('./webpack.skeleton.conf')
+            webpackConfig: {
+                entry: {
+                    page1: resolve('./src/pages/page1/entry-skeleton.js'),
+                    page2: resolve('./src/pages/page2/entry-skeleton.js')
+                }
+            }
         }),
 
         new MultipageWebpackPlugin({

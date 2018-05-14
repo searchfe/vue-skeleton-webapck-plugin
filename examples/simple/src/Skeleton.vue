@@ -26,6 +26,7 @@ export default {
     display: flex;
     flex-direction: column;
     padding-top: 8px;
+    background: url('./logo.jpg')
 }
 
 </style>

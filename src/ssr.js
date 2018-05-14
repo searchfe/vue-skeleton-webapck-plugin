@@ -8,58 +8,77 @@
 
 const path = require('path');
 const webpack = require('webpack');
+const NodeTemplatePlugin = require('webpack/lib/node/NodeTemplatePlugin');
+const NodeTargetPlugin = require('webpack/lib/node/NodeTargetPlugin');
+const LoaderTargetPlugin = require('webpack/lib/LoaderTargetPlugin');
+const LibraryTemplatePlugin = require('webpack/lib/LibraryTemplatePlugin');
+const SingleEntryPlugin = require('webpack/lib/SingleEntryPlugin');
+const ExternalsPlugin = require('webpack/lib/ExternalsPlugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const createBundleRenderer = require('vue-server-renderer').createBundleRenderer;
-const MFS = require('memory-fs');
+const nodeExternals = require('webpack-node-externals');
 
-module.exports = (serverWebpackConfig, {quiet = false}) => new Promise((resolve, reject) => {
+module.exports = function renderSkeleton (serverWebpackConfig, {quiet = false, compilation, context}) {
+    let {path: outputPath, publicPath: outputPublicPath} = compilation.outputOptions;
     // get entry name from webpack.conf
-    let outputPath = path.join(serverWebpackConfig.output.path, serverWebpackConfig.output.filename);
-    let outputBasename = path.basename(outputPath, path.extname(outputPath));
+    let outputJSPath = path.join(outputPath, serverWebpackConfig.output.filename);
+    let outputBasename = path.basename(outputJSPath, path.extname(outputJSPath));
     let outputCssBasename = `${outputBasename}.css`;
-    let outputCssPath = path.join(serverWebpackConfig.output.path, outputCssBasename);
+    let outputCSSPath = path.join(outputPath, outputCssBasename);
 
     if (!quiet) {
         console.log(`Generate skeleton for ${outputBasename}...`);
     }
 
-    // extract css into a single file
-    serverWebpackConfig.plugins.push(new ExtractTextPlugin({
-        filename: outputCssBasename
-    }));
+    const outputOptions = {
+        filename: outputJSPath,
+        publicPath: outputPublicPath
+    };
 
-    // webpack start to work
-    let serverCompiler = webpack(serverWebpackConfig);
-    let mfs = new MFS();
-    // output to mfs
-    serverCompiler.outputFileSystem = mfs;
-    let watching = serverCompiler.watch({}, (err, stats) => {
+    const childCompiler = compilation.createChildCompiler('vue-skeleton-webpack-plugin-compiler', outputOptions);
 
-        if (err) {
-            reject(err);
-            return;
-        }
+    childCompiler.context = context;
+    new LibraryTemplatePlugin(undefined, 'commonjs2').apply(childCompiler);
+    new NodeTargetPlugin().apply(childCompiler);
+    new SingleEntryPlugin(context, serverWebpackConfig.entry, undefined).apply(childCompiler);
+    new LoaderTargetPlugin('node').apply(childCompiler);
+    new ExternalsPlugin('commonjs2', serverWebpackConfig.externals || nodeExternals({
+        whitelist: /\.css$/
+    })).apply(childCompiler);
+    new ExtractTextPlugin({
+        filename: outputCSSPath
+    }).apply(childCompiler);
 
-        stats = stats.toJson();
-        stats.errors.forEach(err => {
-            console.error(err);
-        });
-        stats.warnings.forEach(err => {
-            console.warn(err);
-        });
-
-        let bundle = mfs.readFileSync(outputPath, 'utf-8');
-        let skeletonCss = mfs.readFileSync(outputCssPath, 'utf-8');
-        // create renderer with bundle
-        let renderer = createBundleRenderer(bundle);
-        // use vue ssr to render skeleton
-        renderer.renderToString({}, (err, skeletonHtml) => {
-            if (err) {
-                watching.close(() => reject(err));
+    return new Promise((resolve, reject) => {
+        childCompiler.runAsChild((err, entries, childCompilation) => {
+            if (childCompilation && childCompilation.errors && childCompilation.errors.length) {
+                const errorDetails = childCompilation.errors.map(error => error.message + (error.error ? ':\n' + error.error : '')).join('\n');
+                reject(new Error('Child compilation failed:\n' + errorDetails));
+            }
+            else if (err) {
+                reject(err);
             }
             else {
-                resolve({skeletonHtml, skeletonCss, watching});
+                let bundle = childCompilation.assets[outputJSPath].source();
+                let skeletonCss = childCompilation.assets[outputCSSPath].source();
+
+                // delete JS & CSS files
+                delete compilation.assets[outputJSPath];
+                delete compilation.assets[outputCSSPath];
+                delete compilation.assets[`${outputJSPath}.map`];
+                delete compilation.assets[`${outputCSSPath}.map`];
+                // create renderer with bundle
+                let renderer = createBundleRenderer(bundle);
+                // use vue ssr to render skeleton
+                renderer.renderToString({}, (err, skeletonHtml) => {
+                    if (err) {
+                        reject(err);
+                    }
+                    else {
+                        resolve({skeletonHtml, skeletonCss});
+                    }
+                });
             }
         });
     });
-});
+};

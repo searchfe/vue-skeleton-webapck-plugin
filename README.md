@@ -36,7 +36,11 @@ import SkeletonWebpackPlugin from 'vue-skeleton-webpack-plugin';
 
 plugins: [
     new SkeletonWebpackPlugin({
-        webpackConfig: require('./webpack.skeleton.conf')
+        webpackConfig: {
+            entry: {
+                app: resolve('./src/entry-skeleton.js')
+            }
+        }
     })
 ]
 ```
