@@ -69,10 +69,10 @@ class SkeletonPlugin {
 
                 ssr(webpackConfig, {
                     quiet, compilation, context: compiler.context
-                }).then(({skeletonHtml, skeletonCss, watching}) => {
+                }).then(({skeletonHtml, skeletonCSS, watching}) => {
                     // insert inlined styles into html
                     let headTagEndPos = htmlPluginData.html.lastIndexOf('</head>');
-                    htmlPluginData.html = insertAt(htmlPluginData.html, `<style>${skeletonCss}</style>`, headTagEndPos);
+                    htmlPluginData.html = insertAt(htmlPluginData.html, `<style>${skeletonCSS}</style>`, headTagEndPos);
 
                     // replace mounted point with ssr result in html
                     let appPos = htmlPluginData.html.lastIndexOf(insertAfter) + insertAfter.length;
