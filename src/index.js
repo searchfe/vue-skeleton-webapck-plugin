@@ -54,6 +54,9 @@ class SkeletonPlugin {
 
                 // find current processing entry
                 if (Array.isArray(usedChunks)) {
+                    if (usedChunks.length === 0) {
+                        usedChunks = htmlPluginData.plugin.options.chunks;
+                    }
                     entryKey = Object.keys(skeletonEntries).find(v => usedChunks.indexOf(v) > -1);
                 }
                 else {
