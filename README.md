@@ -55,11 +55,11 @@ import SkeletonWebpackPlugin from 'vue-skeleton-webpack-plugin';
 module: {
     rules: [
         SkeletonWebpackPlugin.loader({
-            resource: resolve('src/entry.js'),
+            resource: resolve('src/entry.js'), 
             options: {
                 entry: 'skeleton',
                 routePathTemplate: '/skeleton',
-                importTemplate: 'import Skeleton from \'./Skeleton.vue\';'
+                importTemplate: 'import [nameHash] from \'./[nameCap].vue\';'
             }
         })
     ]
