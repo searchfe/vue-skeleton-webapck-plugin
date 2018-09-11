@@ -6,7 +6,7 @@
 /* eslint-disable no-console, fecs-no-require */
 
 const ssr = require('./ssr');
-const {insertAt, isObject, generateRouterScript} = require('./util');
+const {insertAt, isObject, isFunction, generateRouterScript} = require('./util');
 
 const DEFAULT_PLUGIN_OPTIONS = {
     webpackConfig: {},
@@ -110,7 +110,10 @@ class SkeletonPlugin {
             entryKey = DEFAULT_ENTRY_NAME;
         }
 
-        return skeletons[entryKey];
+        return {
+            name: entryKey,
+            skeleton: skeletons[entryKey]
+        };
     }
 
     /**
@@ -120,8 +123,8 @@ class SkeletonPlugin {
      * @param {Object} skeletons skeletons
      */
     injectToHtml(htmlPluginData, skeletons = {}) {
-        const {insertAfter} = this.options;
-        const skeleton = this.findSkeleton(htmlPluginData, skeletons);
+        let {insertAfter} = this.options;
+        const {name, skeleton} = this.findSkeleton(htmlPluginData, skeletons);
         if (!skeleton) {
             console.log('Empty entry for skeleton, please check your webpack.config.');
             return;
@@ -133,6 +136,9 @@ class SkeletonPlugin {
         htmlPluginData.html = insertAt(htmlPluginData.html, `<style>${css}</style>`, headTagEndPos);
 
         // replace mounted point with ssr result in html
+        if (isFunction(insertAfter)) {
+            insertAfter = insertAfter(name);
+        }
         let appPos = htmlPluginData.html.lastIndexOf(insertAfter) + insertAfter.length;
         htmlPluginData.html = insertAt(htmlPluginData.html, html + script, appPos);
     }

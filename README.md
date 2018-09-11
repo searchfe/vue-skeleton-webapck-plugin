@@ -52,7 +52,8 @@ plugins: [
 ### SkeletonWebpackPlugin
 
 - webpackConfig *必填*，渲染 skeleton 的 webpack 配置对象
-- insertAfter *选填*，渲染 DOM 结果插入位置，默认值为`'<div id="app">'`
+- insertAfter *选填*，渲染 DOM 结果插入位置，默认值为字符串 `'<div id="app">'`
+    - 也可以传入 `Function`，方法签名为 `insertAfter(entryKey: string): string`，返回值为挂载点字符串
 - quiet *选填*，在服务端渲染时是否需要输出信息到控制台
 - router *选填* SPA 下配置各个路由路径对应的 Skeleton
     - mode *选填* 路由模式，两个有效值 `history|hash`

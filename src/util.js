@@ -20,6 +20,8 @@ module.exports = {
 
     isObject: (obj) => Object.prototype.toString.call(obj).match('Object'),
 
+    isFunction: (func) => func && Object.prototype.toString.call(func) === '[object Function]',
+
     routes2Reg: (routes) => {
         let reg;
         if (typeof routes === 'string') {

@@ -51,6 +51,9 @@ let webpackConfig = merge(baseWebpackConfig, {
                     page1: resolve('./src/pages/page1/entry-skeleton.js'),
                     page2: resolve('./src/pages/page2/entry-skeleton.js')
                 }
+            },
+            insertAfter: function(entryKey) {
+                return `<div id="app-${entryKey}">`;
             }
         }),
 
