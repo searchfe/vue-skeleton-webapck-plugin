@@ -2,6 +2,10 @@ Change History
 ==============
 
 =======
+v1.2.2
+---
+* [Feature] `insertAfter` 支持传入自定义 `Function` [ISSUE#26](https://github.com/lavas-project/vue-skeleton-webpack-plugin/issues/26)
+
 v1.2.1
 ---
 * [Feature] 支持 hot reload, 原有 `SkeletonWebpackPlugin.loader` 已废弃
