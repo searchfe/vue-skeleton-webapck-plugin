@@ -20,6 +20,7 @@
     "webpack-node-externals": "^1.6.0"
   },
   "devDependencies": {
+    "@vue/cli-service": "^3.0.1",
     "autoprefixer": "^8.2.0",
     "ava": "^0.18.2",
     "babel-cli": "^6.24.0",
