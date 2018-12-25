@@ -18,6 +18,9 @@ const DEFAULT_ENTRY_NAME = 'main';
 
 const PLUGIN_NAME = 'VueSkeletonWebpackPlugin';
 
+// webpack 构建 entry 是唯一的，已生成 skeleton 无需再在 htmlWebpackPluginBeforeHtmlProcessing 钩子中继续生成
+var hasInjectedEntrysMap = {};
+
 class SkeletonPlugin {
 
     constructor(options = {}) {
@@ -37,12 +40,20 @@ class SkeletonPlugin {
                 this.generateSkeletonForEntries(this.extractEntries(compiler.options.entry), compiler, compilation)
                     .then(skeletonResults => {
                         skeletons = skeletonResults.reduce((cur, prev) => Object.assign(prev, cur), {});
+
+                        Object.keys(skeletons).forEach((skeletonKeyItem) => {
+                            hasInjectedEntrysMap[skeletonKeyItem] = false;
+                        });
+
                         cb();
                     })
                     .catch(e => console.log(e));
 
                 compilation.hooks.htmlWebpackPluginBeforeHtmlProcessing.tapAsync(PLUGIN_NAME, (htmlPluginData, callback) => {
-                    this.injectToHtml(htmlPluginData, skeletons);
+                    if (Object.keys(hasInjectedEntrysMap).filter((injectedEntryItem) => !hasInjectedEntrysMap[injectedEntryItem]).length > 0) {
+                        this$1.injectToHtml(htmlPluginData, skeletons);
+                    }
+
                     callback(null, htmlPluginData);
                 });
             });
@@ -52,12 +63,20 @@ class SkeletonPlugin {
                 this.generateSkeletonForEntries(this.extractEntries(compiler.options.entry), compiler, compilation)
                     .then(skeletonResults => {
                         skeletons = skeletonResults.reduce((cur, prev) => Object.assign(prev, cur), {});
+
+                        Object.keys(skeletons).forEach((skeletonKeyItem) => {
+                            hasInjectedEntrysMap[skeletonKeyItem] = false;
+                        });
+
                         cb();
                     })
                     .catch(e => console.log(e));
-                
+
                 compilation.plugin('html-webpack-plugin-before-html-processing', (htmlPluginData, callback) => {
-                    this.injectToHtml(htmlPluginData, skeletons);
+                    if (Object.keys(hasInjectedEntrysMap).filter((injectedEntryItem) => !hasInjectedEntrysMap[injectedEntryItem]).length > 0) {
+                        this.injectToHtml(htmlPluginData, skeletons);
+                    }
+
                     callback(null, htmlPluginData);
                 });
             });
@@ -66,7 +85,7 @@ class SkeletonPlugin {
 
     /**
      * format entries for all skeletons from options
-     * 
+     *
      * @param {Object} parentEntry entry in webpack.config
      * @return {Object} entries entries for all skeletons
      */
@@ -93,7 +112,7 @@ class SkeletonPlugin {
 
     /**
      * find skeleton for current html-plugin in all skeletons
-     * 
+     *
      * @param {Object} htmlPluginData data for html-plugin
      * @param {Object} skeletons skeletons
      * @param {Object} target skeleton
@@ -118,7 +137,7 @@ class SkeletonPlugin {
 
     /**
      * inject HTML, CSS and JS
-     * 
+     *
      * @param {Object} htmlPluginData data for html-plugin
      * @param {Object} skeletons skeletons
      */
@@ -130,7 +149,7 @@ class SkeletonPlugin {
             return;
         }
         const {html = '', css = '', script = ''} = skeleton;
-        
+
         // insert inlined styles into html
         let headTagEndPos = htmlPluginData.html.lastIndexOf('</head>');
         htmlPluginData.html = insertAt(htmlPluginData.html, `<style>${css}</style>`, headTagEndPos);
@@ -141,11 +160,13 @@ class SkeletonPlugin {
         }
         let appPos = htmlPluginData.html.lastIndexOf(insertAfter) + insertAfter.length;
         htmlPluginData.html = insertAt(htmlPluginData.html, html + script, appPos);
+
+        hasInjectedEntrysMap[name] = true;
     }
 
     /**
      * generate skeletons for all entries
-     * 
+     *
      * @param {Object} entries entries for all skeletons
      * @param {Object} compiler compiler
      * @param {Object} compilation compilation
